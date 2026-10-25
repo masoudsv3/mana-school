@@ -1,9 +1,10 @@
+// lib/auth.ts
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { prisma } from "@/lib/prisma";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
- providers: [
+  providers: [
     Credentials({
       credentials: {
         phone: { label: "Phone", type: "tel" },
@@ -27,7 +28,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           user = await prisma.user.create({ data: { phone } });
         }
 
-        // برگرداندن اطلاعات کاربر همراه با نقش
+        // برگرداندن id و آرایه roles
         return { id: user.id, roles: user.roles }; 
       },
     }),
@@ -36,26 +37,22 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   session: { strategy: "jwt" },
   callbacks: {
     async jwt({ token, user }) {
-      // ۱. وقتی کاربر برای اولین بار لاگین می‌کند
+      // ۱. اگر کاربر تازه لاگین کرده
       if (user) {
         token.id = user.id;
         token.roles = (user as any).roles;
       }
 
-      // ۲. وقتی کاربر از دیتابیس آپدیت می‌شود (یا در هر درخواست)
-      // برای اینکه در هر درخواست نقش را چک کنیم، باید آیدی داشته باشیم
+      // ۲. برای اینکه تغییرات دیتابیس فوری اعمال شوند:
       if (token.id) {
-        // نقش را از دیتابیس می‌خوانیم
         const dbUser = await prisma.user.findUnique({
           where: { id: token.id as string },
           select: { roles: true }
         });
-        
         if (dbUser) {
-          token.roles = dbUser.roles; // نقش جدید را جایگزین می‌کنیم
+          token.roles = dbUser.roles; // آپدیت توکن با نقش‌های جدید
         }
       }
-
       return token;
     },
     async session({ session, token }) {
