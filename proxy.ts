@@ -6,7 +6,7 @@ import { NextResponse } from "next/server";
 export default auth((req) => {
   const { nextUrl } = req;
   const isLoggedIn = !!req.auth;
-  const userRole = req.auth?.user?.role; // نقش کاربر از سشن
+  const userRoles = req.auth?.user?.roles || [];
 
   const isAdminRoute = nextUrl.pathname.startsWith("/admin");
   const isMentorRoute = nextUrl.pathname.startsWith("/mentor");
@@ -18,17 +18,17 @@ export default auth((req) => {
   }
 
   // چک کردن دسترسی ادمین
-  if (isAdminRoute && userRole !== "ADMIN") {
+  if (isAdminRoute && !userRoles.includes("ADMIN")) {
     return NextResponse.redirect(new URL("/", nextUrl));
   }
 
   // چک کردن دسترسی مدرس
-  if (isMentorRoute && userRole !== "MENTOR") {
+  if (isMentorRoute && !userRoles.includes("MENTOR")) {
     return NextResponse.redirect(new URL("/", nextUrl));
   }
 
   // چک کردن دسترسی دانشجو
-  if (isStudentRoute && userRole !== "STUDENT") {
+  if (isStudentRoute && !userRoles.includes("STUDENT")) {
     return NextResponse.redirect(new URL("/", nextUrl));
   }
 

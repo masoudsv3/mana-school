@@ -28,18 +28,18 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         }
 
         // برگرداندن اطلاعات کاربر همراه با نقش
-        return { id: user.id, role: user.roles[0] }; 
+        return { id: user.id, roles: user.roles }; 
       },
     }),
   ],
   pages: { signIn: "/login" },
   session: { strategy: "jwt" },
   callbacks: {
-    async jwt({ token, user, trigger }) {
+    async jwt({ token, user }) {
       // ۱. وقتی کاربر برای اولین بار لاگین می‌کند
       if (user) {
         token.id = user.id;
-        token.role = (user as any).role;
+        token.roles = (user as any).roles;
       }
 
       // ۲. وقتی کاربر از دیتابیس آپدیت می‌شود (یا در هر درخواست)
@@ -52,7 +52,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         });
         
         if (dbUser) {
-          token.role = dbUser.roles[0]; // نقش جدید را جایگزین می‌کنیم
+          token.roles = dbUser.roles; // نقش جدید را جایگزین می‌کنیم
         }
       }
 
@@ -61,7 +61,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string;
-        session.user.role = token.role as string;
+        (session.user as any).roles = token.roles as string;
       }
       return session;
     },

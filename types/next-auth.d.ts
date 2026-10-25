@@ -4,18 +4,18 @@ declare module "next-auth" {
   interface Session {
     user: {
       id: string;
-      role: string; // یا Enum Role
+      roles: string[]
     } & DefaultSession["user"];
   }
 
   interface User {
-    role: string;
+    roles: string[];
   }
 }
 
 declare module "next-auth/jwt" {
   interface JWT {
     id: string;
-    role: string;
+    roles: string[];
   }
 }
