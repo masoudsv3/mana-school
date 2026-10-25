@@ -1,4 +1,3 @@
-
 import { auth } from "@/lib/auth";
 import { NextResponse } from "next/server";
 
@@ -6,12 +5,16 @@ import { NextResponse } from "next/server";
 export default auth((req) => {
   const { nextUrl } = req;
   const isLoggedIn = !!req.auth;
-  const userRoles = req.auth?.user?.roles || [];
+  const userRoles = (req.auth?.user as any)?.roles || [];
 
   const isAdminRoute = nextUrl.pathname.startsWith("/admin");
   const isMentorRoute = nextUrl.pathname.startsWith("/mentor");
   const isStudentRoute = nextUrl.pathname.startsWith("/student");
+  const isLoginPage = nextUrl.pathname === "/login";
 
+  if (isLoggedIn && isLoginPage) {
+    return NextResponse.redirect(new URL("/", nextUrl));
+  }
   // اگر کاربر لاگین نکرده و میخواد بره تو پنل‌ها
   if (!isLoggedIn && (isAdminRoute || isMentorRoute || isStudentRoute)) {
     return NextResponse.redirect(new URL("/login", nextUrl));
