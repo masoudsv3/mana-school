@@ -1,4 +1,5 @@
-import Link from "next/link";
+import { Navbar } from "@/components/layout/navbar"; // ایمپورت مستقیم
+import { Footer } from "@/components/layout/footer";
 
 export default function PublicLayout({
   children,
@@ -6,17 +7,12 @@ export default function PublicLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div>
-      <div className="flex gap-1">
-        <Link href={"/"}>Home</Link>
-        <Link href={"/courses"}>Courses</Link>
-        <Link href={"/about"}>About</Link>
-        <Link href={"/student"}>Student</Link>
-        <Link href={"/mentor"}>Mentor</Link>
-        <Link href={"/admin"}>Admin</Link>
-        <Link href={"/login"}>Login</Link>
-      </div>
-      <div>{children}</div>
+    <div className="flex min-h-screen flex-col bg-slate-50">
+      <Navbar /> {/* استفاده مستقیم */}
+      <main className="flex-1">
+        {children}
+      </main>
+      <Footer />
     </div>
   );
 }
